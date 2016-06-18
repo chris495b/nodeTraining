@@ -1,5 +1,6 @@
 var EventEmitter = require("events").EventEmitter;
-var http = require("http");
+var https = require("https");
+var http= require("http");
 var util = require("util");
 
 /**
@@ -14,9 +15,8 @@ function Profile(username) {
     profileEmitter = this;
 
     //Connect to the API URL (http://teamtreehouse.com/username.json)
-    var request = http.get("http://teamtreehouse.com/" + username + ".json", function(response) {
+    var request = https.get("https://teamtreehouse.com/" + username + ".json",(response)=>{
         var body = "";
-
         if (response.statusCode !== 200) {
             request.abort();
             //Status Code Error
@@ -24,12 +24,12 @@ function Profile(username) {
         }
 
         //Read the data
-        response.on('data', function (chunk) {
+        response.on('data',(chunk)=>{
             body += chunk;
             profileEmitter.emit("data", chunk);
         });
 
-        response.on('end', function () {
+        response.on('end',()=>{
             if(response.statusCode === 200) {
                 try {
                     //Parse the data
@@ -39,7 +39,7 @@ function Profile(username) {
                     profileEmitter.emit("error", error);
                 }
             }
-        }).on("error", function(error){
+        }).on("error", (error)=>{
             profileEmitter.emit("error", error);
         });
     });
