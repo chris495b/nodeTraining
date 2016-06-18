@@ -1,13 +1,14 @@
 var Profile = require("./profile.js");
-
+var renderer=require('./renderer.js');
 var home=(request, response)=>{
   // if url is "/" and GET
   if(request.url=="/"){
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/plain');
-    response.write("Header\n");
-    response.write("Search\n");
-    response.end('Footer\n');
+    renderer.view("header",{},response);
+    renderer.view("search",{},response);
+    renderer.view("footer",{},response);
+    response.end();
   }
 }
 var user=(request, response)=>{
@@ -16,6 +17,7 @@ var user=(request, response)=>{
   if(username.length > 0){
     response.statusCode = 200;
     response.setHeader('Content-Type', 'text/plain');
+    renderer.view("header",{},response);
     //get json from tree house
     var studentProfile = new Profile(username);
     studentProfile.on('end',(profileJSON)=>{
@@ -30,14 +32,18 @@ var user=(request, response)=>{
       }
 
       // simple response
-      response.write(values.username+" has "+values.badges+" badges\n");
-      response.end('Footer\n');
+      renderer.view("search",values,response);
+      renderer.view("footer",{},response);
+      response.end();
     });
     studentProfile.on("error",(error)=>{
         // simple response
-      response.write(error.message+'\n');
-      response.end('Footer\n');
+      renderer.view("error",{errorMessage:error.message},response);
+      renderer.view("search",{},response);
+      renderer.view("footer",{},response);
+      response.end();
     });
+
 
   }
 }
